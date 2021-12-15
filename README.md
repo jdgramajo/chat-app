@@ -26,6 +26,8 @@
         <li>Messages are saved to memory only.</li>
         <li>Backend, unauthenticated, enpoints expose getting all messages and, deleting all messages.</li>
         <li>Uses EJS templating and Bootstrap 5 for layout.</li>
+        <li>Swagger UI</li>
+        <li>Unit testing with Jest.</li>
       </ul>
     </p>
   </div>
