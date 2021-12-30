@@ -3,15 +3,18 @@ const app = express();
 const server = require("http").createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
+
+const messagesService = require("./services/messagesService");
 
 let connectionCount = 0;
 let connectedUsers = 0;
 
-const messages = [];
-
-// Static resources
+// Middlewares
 
 app.use(express.static("public"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Templating engine setup
 
@@ -24,12 +27,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/messages", (req, res) => {
-  res.json(messages);
+  res.json(messagesService.getMessagesHistory());
 });
 
 app.delete("/messages", (req, res) => {
   // "Empties" the existing messages.
-  messages.length = 0;
+  messagesService.clearMessages();
   io.emit("clearMessages");
   res.status(200).send();
 });
@@ -43,7 +46,7 @@ io.on("connection", (socket) => {
   socket.emit("setUserName", `User ${connectionCount}`);
 
   socket.on("chatMessageEmitted", ({ userName, message }) => {
-    messages.push({ userName, message });
+    messagesService.addToMessageHistory({ userName, message });
     // Send event all other clients (as opposed to io.emit, which sends to all).
     socket.broadcast.emit("chatMessageEmitted", { userName, message });
   });
